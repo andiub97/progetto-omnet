@@ -48,12 +48,16 @@ network Progetto
     connections:
         server.out --> sink.in++;
         source.out --> router.in++;
-        passiveQueue1.out++ --> server.in++;
         router.out++ --> passiveQueue1.in++;
         router.out++ --> passiveQueue2.in++;
         router.out++ --> passiveQueue3.in++;
         router.out++ --> passiveQueue4.in++;
+        passiveQueue1.out++ --> server.in++;
         passiveQueue2.out++ --> server.in++;
         passiveQueue3.out++ --> server.in++;
         passiveQueue4.out++ --> server.in++;
+        server.out1++ --> passiveQueue1.in++;
+        server.out1++ --> passiveQueue2.in++;
+        server.out1++ --> passiveQueue3.in++;
+        server.out1++ --> passiveQueue4.in++;
 }
