@@ -16,13 +16,7 @@ Define_Module(Sink);
 
 void Sink::initialize()
 {
-    //lifeTimeSignal = registerSignal("lifeTime");
-    //totalQueueingTimeSignal = registerSignal("totalQueueingTime");
-    //queuesVisitedSignal = registerSignal("queuesVisited");
-    //totalServiceTimeSignal = registerSignal("totalServiceTime");
-    //totalDelayTimeSignal = registerSignal("totalDelayTime");
-    //delaysVisitedSignal = registerSignal("delaysVisited");
-    //generationSignal = registerSignal("generation");
+    lifeTimeSignal = registerSignal("lifeTime");
     keepJobs = par("keepJobs");
 }
 
@@ -30,18 +24,7 @@ void Sink::handleMessage(cMessage *msg)
 {
     Job *job = check_and_cast<Job *>(msg);
     // gather statistics
-//    emit(lifeTimeSignal, simTime()- job->getCreationTime());
-//    if(job->getKind()==1){
-//        emit(lifeTimeSignalU1, simTime()- job->getCreationTime());
-//    } else if(job->getKind()==2){
-//        emit(lifeTimeSignalU2, simTime()- job->getCreationTime());
-//    }
-    //emit(totalQueueingTimeSignal, job->getTotalQueueingTime());
-    //emit(queuesVisitedSignal, job->getQueueCount());
-    //emit(totalServiceTimeSignal, job->getTotalServiceTime());
-    //emit(totalDelayTimeSignal, job->getTotalDelayTime());
-    //emit(delaysVisitedSignal, job->getDelayCount());
-    //emit(generationSignal, job->getGeneration());
+    emit(lifeTimeSignal, simTime() - job->getCreationTime());
 
     if (!keepJobs)
         delete msg;
