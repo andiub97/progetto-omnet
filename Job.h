@@ -47,8 +47,8 @@ class QUEUEING_API Job: public Job_Base
         virtual void parentDeleted();
         virtual void childDeleted(Job *child);
 
-        simtime_t service_time;
-        simtime_t deadline;
+//        simtime_t service_time;
+//        simtime_t deadline;
     public:
         /**
          * Creates a job with the given name, message kind, and jobList. If
@@ -96,13 +96,13 @@ class QUEUEING_API Job: public Job_Base
         virtual simtime_t getEntryTime(){return entryTime;}
 
 
-        virtual void setDeadline(simtime_t number);
-
-        virtual simtime_t getDeadline(){return deadline;}
-
-        void setServiceTime(simtime_t number);
-
-        virtual simtime_t getServiceTime(){return service_time;}
+//        virtual void setDeadline(simtime_t number);
+//
+//        virtual simtime_t getDeadline(){return deadline;}
+//
+//        void setServiceTime(simtime_t number);
+//
+//        virtual simtime_t getServiceTime(){return service_time;}
 
 
 };

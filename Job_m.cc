@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.6 from Job.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.0 from Job.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -27,6 +27,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <type_traits>
 #include "Job_m.h"
 
 namespace omnetpp {
@@ -149,63 +150,7 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
-namespace {
-template <class T> inline
-typename std::enable_if<std::is_polymorphic<T>::value && std::is_base_of<omnetpp::cObject,T>::value, void *>::type
-toVoidPtr(T* t)
-{
-    return (void *)(static_cast<const omnetpp::cObject *>(t));
-}
-
-template <class T> inline
-typename std::enable_if<std::is_polymorphic<T>::value && !std::is_base_of<omnetpp::cObject,T>::value, void *>::type
-toVoidPtr(T* t)
-{
-    return (void *)dynamic_cast<const void *>(t);
-}
-
-template <class T> inline
-typename std::enable_if<!std::is_polymorphic<T>::value, void *>::type
-toVoidPtr(T* t)
-{
-    return (void *)static_cast<const void *>(t);
-}
-
-}
-
 namespace queueing {
-
-// forward
-template<typename T, typename A>
-std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec);
-
-// Template rule to generate operator<< for shared_ptr<T>
-template<typename T>
-inline std::ostream& operator<<(std::ostream& out,const std::shared_ptr<T>& t) { return out << t.get(); }
-
-// Template rule which fires if a struct or class doesn't have operator<<
-template<typename T>
-inline std::ostream& operator<<(std::ostream& out,const T&) {return out;}
-
-// operator<< for std::vector<T>
-template<typename T, typename A>
-inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
-{
-    out.put('{');
-    for(typename std::vector<T,A>::const_iterator it = vec.begin(); it != vec.end(); ++it)
-    {
-        if (it != vec.begin()) {
-            out.put(','); out.put(' ');
-        }
-        out << *it;
-    }
-    out.put('}');
-
-    char buf[32];
-    sprintf(buf, " (size=%u)", (unsigned int)vec.size());
-    out.write(buf, strlen(buf));
-    return out;
-}
 
 Job_Base::Job_Base(const char *name, short kind) : ::omnetpp::cMessage(name, kind)
 {
@@ -234,6 +179,7 @@ void Job_Base::copy(const Job_Base& other)
     this->totalQueueingTime = other.totalQueueingTime;
     this->totalServiceTime = other.totalServiceTime;
     this->totalDelayTime = other.totalDelayTime;
+    this->deadlineTime = other.deadlineTime;
     this->queueCount = other.queueCount;
     this->delayCount = other.delayCount;
     this->generation = other.generation;
@@ -246,6 +192,7 @@ void Job_Base::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->totalQueueingTime);
     doParsimPacking(b,this->totalServiceTime);
     doParsimPacking(b,this->totalDelayTime);
+    doParsimPacking(b,this->deadlineTime);
     doParsimPacking(b,this->queueCount);
     doParsimPacking(b,this->delayCount);
     doParsimPacking(b,this->generation);
@@ -258,6 +205,7 @@ void Job_Base::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->totalQueueingTime);
     doParsimUnpacking(b,this->totalServiceTime);
     doParsimUnpacking(b,this->totalDelayTime);
+    doParsimUnpacking(b,this->deadlineTime);
     doParsimUnpacking(b,this->queueCount);
     doParsimUnpacking(b,this->delayCount);
     doParsimUnpacking(b,this->generation);
@@ -273,32 +221,42 @@ void Job_Base::setPriority(int priority)
     this->priority = priority;
 }
 
-omnetpp::simtime_t Job_Base::getTotalQueueingTime() const
+::omnetpp::simtime_t Job_Base::getTotalQueueingTime() const
 {
     return this->totalQueueingTime;
 }
 
-void Job_Base::setTotalQueueingTime(omnetpp::simtime_t totalQueueingTime)
+void Job_Base::setTotalQueueingTime(::omnetpp::simtime_t totalQueueingTime)
 {
     this->totalQueueingTime = totalQueueingTime;
 }
 
-omnetpp::simtime_t Job_Base::getTotalServiceTime() const
+::omnetpp::simtime_t Job_Base::getTotalServiceTime() const
 {
     return this->totalServiceTime;
 }
 
-void Job_Base::setTotalServiceTime(omnetpp::simtime_t totalServiceTime)
+void Job_Base::setTotalServiceTime(::omnetpp::simtime_t totalServiceTime)
 {
     this->totalServiceTime = totalServiceTime;
 }
 
-omnetpp::simtime_t Job_Base::getTotalDelayTime() const
+::omnetpp::simtime_t Job_Base::getDeadlineTime() const
+{
+    return this->deadlineTime;
+}
+
+void Job_Base::setDeadlineTime(::omnetpp::simtime_t deadlineTime)
+{
+    this->deadlineTime = deadlineTime;
+}
+
+::omnetpp::simtime_t Job_Base::getTotalDelayTime() const
 {
     return this->totalDelayTime;
 }
 
-void Job_Base::setTotalDelayTime(omnetpp::simtime_t totalDelayTime)
+void Job_Base::setTotalDelayTime(::omnetpp::simtime_t totalDelayTime)
 {
     this->totalDelayTime = totalDelayTime;
 }
@@ -336,12 +294,13 @@ void Job_Base::setGeneration(int generation)
 class JobDescriptor : public omnetpp::cClassDescriptor
 {
   private:
-    mutable const char **propertynames;
+    mutable const char **propertyNames;
     enum FieldConstants {
         FIELD_priority,
         FIELD_totalQueueingTime,
         FIELD_totalServiceTime,
         FIELD_totalDelayTime,
+        FIELD_deadlineTime,
         FIELD_queueCount,
         FIELD_delayCount,
         FIELD_generation,
@@ -352,34 +311,38 @@ class JobDescriptor : public omnetpp::cClassDescriptor
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
-    virtual const char *getProperty(const char *propertyname) const override;
+    virtual const char *getProperty(const char *propertyName) const override;
     virtual int getFieldCount() const override;
     virtual const char *getFieldName(int field) const override;
     virtual int findField(const char *fieldName) const override;
     virtual unsigned int getFieldTypeFlags(int field) const override;
     virtual const char *getFieldTypeString(int field) const override;
     virtual const char **getFieldPropertyNames(int field) const override;
-    virtual const char *getFieldProperty(int field, const char *propertyname) const override;
-    virtual int getFieldArraySize(void *object, int field) const override;
+    virtual const char *getFieldProperty(int field, const char *propertyName) const override;
+    virtual int getFieldArraySize(omnetpp::any_ptr object, int field) const override;
+    virtual void setFieldArraySize(omnetpp::any_ptr object, int field, int size) const override;
 
-    virtual const char *getFieldDynamicTypeString(void *object, int field, int i) const override;
-    virtual std::string getFieldValueAsString(void *object, int field, int i) const override;
-    virtual bool setFieldValueAsString(void *object, int field, int i, const char *value) const override;
+    virtual const char *getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const override;
+    virtual std::string getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const override;
+    virtual omnetpp::cValue getFieldValue(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const override;
 
     virtual const char *getFieldStructName(int field) const override;
-    virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
+    virtual omnetpp::any_ptr getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
 Register_ClassDescriptor(JobDescriptor)
 
 JobDescriptor::JobDescriptor() : omnetpp::cClassDescriptor("queueing::Job", "omnetpp::cMessage")
 {
-    propertynames = nullptr;
+    propertyNames = nullptr;
 }
 
 JobDescriptor::~JobDescriptor()
 {
-    delete[] propertynames;
+    delete[] propertyNames;
 }
 
 bool JobDescriptor::doesSupport(omnetpp::cObject *obj) const
@@ -389,41 +352,42 @@ bool JobDescriptor::doesSupport(omnetpp::cObject *obj) const
 
 const char **JobDescriptor::getPropertyNames() const
 {
-    if (!propertynames) {
+    if (!propertyNames) {
         static const char *names[] = { "customize",  nullptr };
-        omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-        const char **basenames = basedesc ? basedesc->getPropertyNames() : nullptr;
-        propertynames = mergeLists(basenames, names);
+        omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+        const char **baseNames = base ? base->getPropertyNames() : nullptr;
+        propertyNames = mergeLists(baseNames, names);
     }
-    return propertynames;
+    return propertyNames;
 }
 
-const char *JobDescriptor::getProperty(const char *propertyname) const
+const char *JobDescriptor::getProperty(const char *propertyName) const
 {
-    if (!strcmp(propertyname, "customize")) return "true";
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? basedesc->getProperty(propertyname) : nullptr;
+    if (!strcmp(propertyName, "customize")) return "true";
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    return base ? base->getProperty(propertyName) : nullptr;
 }
 
 int JobDescriptor::getFieldCount() const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 7+basedesc->getFieldCount() : 7;
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    return base ? 7+base->getFieldCount() : 7;
 }
 
 unsigned int JobDescriptor::getFieldTypeFlags(int field) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldTypeFlags(field);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldTypeFlags(field);
+        field -= base->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,    // FIELD_priority
-        0,    // FIELD_totalQueueingTime
-        0,    // FIELD_totalServiceTime
-        0,    // FIELD_totalDelayTime
+        FD_ISEDITABLE,    // FIELD_totalQueueingTime
+        FD_ISEDITABLE,    // FIELD_totalServiceTime
+        FD_ISEDITABLE,    // FIELD_totalDelayTime
+        FD_ISEDITABLE,    // FIELD_deadlineTime
         FD_ISEDITABLE,    // FIELD_queueCount
         FD_ISEDITABLE,    // FIELD_delayCount
         FD_ISEDITABLE,    // FIELD_generation
@@ -433,17 +397,18 @@ unsigned int JobDescriptor::getFieldTypeFlags(int field) const
 
 const char *JobDescriptor::getFieldName(int field) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldName(field);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldName(field);
+        field -= base->getFieldCount();
     }
     static const char *fieldNames[] = {
         "priority",
         "totalQueueingTime",
         "totalServiceTime",
         "totalDelayTime",
+        "deadlineTime",
         "queueCount",
         "delayCount",
         "generation",
@@ -453,31 +418,33 @@ const char *JobDescriptor::getFieldName(int field) const
 
 int JobDescriptor::findField(const char *fieldName) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0] == 'p' && strcmp(fieldName, "priority") == 0) return base+0;
-    if (fieldName[0] == 't' && strcmp(fieldName, "totalQueueingTime") == 0) return base+1;
-    if (fieldName[0] == 't' && strcmp(fieldName, "totalServiceTime") == 0) return base+2;
-    if (fieldName[0] == 't' && strcmp(fieldName, "totalDelayTime") == 0) return base+3;
-    if (fieldName[0] == 'q' && strcmp(fieldName, "queueCount") == 0) return base+4;
-    if (fieldName[0] == 'd' && strcmp(fieldName, "delayCount") == 0) return base+5;
-    if (fieldName[0] == 'g' && strcmp(fieldName, "generation") == 0) return base+6;
-    return basedesc ? basedesc->findField(fieldName) : -1;
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    int baseIndex = base ? base->getFieldCount() : 0;
+    if (strcmp(fieldName, "priority") == 0) return baseIndex + 0;
+    if (strcmp(fieldName, "totalQueueingTime") == 0) return baseIndex + 1;
+    if (strcmp(fieldName, "totalServiceTime") == 0) return baseIndex + 2;
+    if (strcmp(fieldName, "totalDelayTime") == 0) return baseIndex + 3;
+    if (strcmp(fieldName, "deadlineTime") == 0) return baseIndex + 4;
+    if (strcmp(fieldName, "queueCount") == 0) return baseIndex + 5;
+    if (strcmp(fieldName, "delayCount") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "generation") == 0) return baseIndex + 7;
+    return base ? base->findField(fieldName) : -1;
 }
 
 const char *JobDescriptor::getFieldTypeString(int field) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldTypeString(field);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldTypeString(field);
+        field -= base->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
         "int",    // FIELD_priority
         "omnetpp::simtime_t",    // FIELD_totalQueueingTime
         "omnetpp::simtime_t",    // FIELD_totalServiceTime
         "omnetpp::simtime_t",    // FIELD_totalDelayTime
+        "omnetpp::simtime_t",    // FIELD_deadlineTime
         "int",    // FIELD_queueCount
         "int",    // FIELD_delayCount
         "int",    // FIELD_generation
@@ -487,72 +454,89 @@ const char *JobDescriptor::getFieldTypeString(int field) const
 
 const char **JobDescriptor::getFieldPropertyNames(int field) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldPropertyNames(field);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldPropertyNames(field);
+        field -= base->getFieldCount();
     }
     switch (field) {
         default: return nullptr;
     }
 }
 
-const char *JobDescriptor::getFieldProperty(int field, const char *propertyname) const
+const char *JobDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldProperty(field, propertyname);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldProperty(field, propertyName);
+        field -= base->getFieldCount();
     }
     switch (field) {
         default: return nullptr;
     }
 }
 
-int JobDescriptor::getFieldArraySize(void *object, int field) const
+int JobDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldArraySize(object, field);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldArraySize(object, field);
+        field -= base->getFieldCount();
     }
-    Job_Base *pp = (Job_Base *)object; (void)pp;
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-const char *JobDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+void JobDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldDynamicTypeString(object,field,i);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldArraySize(object, field, size);
+            return;
+        }
+        field -= base->getFieldCount();
     }
-    Job_Base *pp = (Job_Base *)object; (void)pp;
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
+    switch (field) {
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Job_Base'", field);
+    }
+}
+
+const char *JobDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldDynamicTypeString(object,field,i);
+        field -= base->getFieldCount();
+    }
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string JobDescriptor::getFieldValueAsString(void *object, int field, int i) const
+std::string JobDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldValueAsString(object,field,i);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldValueAsString(object,field,i);
+        field -= base->getFieldCount();
     }
-    Job_Base *pp = (Job_Base *)object; (void)pp;
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
     switch (field) {
         case FIELD_priority: return long2string(pp->getPriority());
         case FIELD_totalQueueingTime: return simtime2string(pp->getTotalQueueingTime());
         case FIELD_totalServiceTime: return simtime2string(pp->getTotalServiceTime());
         case FIELD_totalDelayTime: return simtime2string(pp->getTotalDelayTime());
+        case FIELD_deadlineTime: return simtime2string(pp->getDeadlineTime());
         case FIELD_queueCount: return long2string(pp->getQueueCount());
         case FIELD_delayCount: return long2string(pp->getDelayCount());
         case FIELD_generation: return long2string(pp->getGeneration());
@@ -560,50 +544,122 @@ std::string JobDescriptor::getFieldValueAsString(void *object, int field, int i)
     }
 }
 
-bool JobDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+void JobDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->setFieldValueAsString(object,field,i,value);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldValueAsString(object, field, i, value);
+            return;
+        }
+        field -= base->getFieldCount();
     }
-    Job_Base *pp = (Job_Base *)object; (void)pp;
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
     switch (field) {
-        case FIELD_priority: pp->setPriority(string2long(value)); return true;
-        case FIELD_queueCount: pp->setQueueCount(string2long(value)); return true;
-        case FIELD_delayCount: pp->setDelayCount(string2long(value)); return true;
-        case FIELD_generation: pp->setGeneration(string2long(value)); return true;
-        default: return false;
+        case FIELD_priority: pp->setPriority(string2long(value)); break;
+        case FIELD_totalQueueingTime: pp->setTotalQueueingTime(string2simtime(value)); break;
+        case FIELD_totalServiceTime: pp->setTotalServiceTime(string2simtime(value)); break;
+        case FIELD_totalDelayTime: pp->setTotalDelayTime(string2simtime(value)); break;
+        case FIELD_deadlineTime: pp->setDeadlineTime(string2simtime(value)); break;
+        case FIELD_queueCount: pp->setQueueCount(string2long(value)); break;
+        case FIELD_delayCount: pp->setDelayCount(string2long(value)); break;
+        case FIELD_generation: pp->setGeneration(string2long(value)); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Job_Base'", field);
+    }
+}
+
+omnetpp::cValue JobDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldValue(object,field,i);
+        field -= base->getFieldCount();
+    }
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
+    switch (field) {
+        case FIELD_priority: return pp->getPriority();
+        case FIELD_totalQueueingTime: return pp->getTotalQueueingTime().dbl();
+        case FIELD_totalServiceTime: return pp->getTotalServiceTime().dbl();
+        case FIELD_totalDelayTime: return pp->getTotalDelayTime().dbl();
+        case FIELD_deadlineTime: return pp->getDeadlineTime().dbl();
+        case FIELD_queueCount: return pp->getQueueCount();
+        case FIELD_delayCount: return pp->getDelayCount();
+        case FIELD_generation: return pp->getGeneration();
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Job_Base' as cValue -- field index out of range?", field);
+    }
+}
+
+void JobDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldValue(object, field, i, value);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
+    switch (field) {
+        case FIELD_priority: pp->setPriority(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_totalQueueingTime: pp->setTotalQueueingTime(value.doubleValue()); break;
+        case FIELD_totalServiceTime: pp->setTotalServiceTime(value.doubleValue()); break;
+        case FIELD_totalDelayTime: pp->setTotalDelayTime(value.doubleValue()); break;
+        case FIELD_deadlineTime: pp->setDeadlineTime(value.doubleValue()); break;
+        case FIELD_queueCount: pp->setQueueCount(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_delayCount: pp->setDelayCount(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_generation: pp->setGeneration(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Job_Base'", field);
     }
 }
 
 const char *JobDescriptor::getFieldStructName(int field) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldStructName(field);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldStructName(field);
+        field -= base->getFieldCount();
     }
     switch (field) {
         default: return nullptr;
     };
 }
 
-void *JobDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+omnetpp::any_ptr JobDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
-    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    if (basedesc) {
-        if (field < basedesc->getFieldCount())
-            return basedesc->getFieldStructValuePointer(object, field, i);
-        field -= basedesc->getFieldCount();
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldStructValuePointer(object, field, i);
+        field -= base->getFieldCount();
     }
-    Job_Base *pp = (Job_Base *)object; (void)pp;
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
     switch (field) {
-        default: return nullptr;
+        default: return omnetpp::any_ptr(nullptr);
     }
 }
 
-} // namespace queueing
+void JobDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldStructValuePointer(object, field, i, ptr);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    Job_Base *pp = omnetpp::fromAnyPtr<Job_Base>(object); (void)pp;
+    switch (field) {
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Job_Base'", field);
+    }
+}
+
+}  // namespace queueing
+
+namespace omnetpp {
+
+}  // namespace omnetpp
 

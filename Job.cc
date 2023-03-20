@@ -103,12 +103,12 @@ void Job::setEntryTime(simtime_t entryTime)
     this->entryTime = entryTime;
 }
 
-void Job::setDeadline(simtime_t time) {
-    deadline = time;
-}
-
-void Job::setServiceTime(simtime_t time) {
-    service_time = time;
-}
+//void Job::setDeadline(simtime_t time) {
+//    deadline = time;
+//}
+//
+//void Job::setServiceTime(simtime_t time) {
+//    service_time = time;
+//}
 
 }; // namespace
