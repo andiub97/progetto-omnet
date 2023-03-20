@@ -25,9 +25,8 @@ class SelectionStrategy;
 class QUEUEING_API PassiveQueue : public cSimpleModule, public IPassiveQueue
 {
     private:
-        //simsignal_t droppedSignal;
-        simsignal_t queueLengthSignal;
-        //simsignal_t queueingTimeSignal;
+        simsignal_t expiredSignal;
+        int expiredJobs;
 
         bool fifo;
         int capacity;
@@ -37,8 +36,6 @@ class QUEUEING_API PassiveQueue : public cSimpleModule, public IPassiveQueue
 
         long jobsCounter=0;
 
-
-        void queueLengthChanged();
         void sendJob(Job *job, int gateIndex);
 
 
@@ -46,14 +43,14 @@ class QUEUEING_API PassiveQueue : public cSimpleModule, public IPassiveQueue
         virtual void initialize() override;
         virtual void handleMessage(cMessage *msg) override;
         virtual void refreshDisplay() const override;
+        virtual void finish() override;
 
     public:
         PassiveQueue();
         virtual ~PassiveQueue();
         // The following methods are called from IServer:
         virtual int length() override;
-        virtual void request(int gateIndex, simtime_t serviceTime, simtime_t deadline) override;
-        virtual void reqUntilPktsEnd(int gateIndex) override;
+        virtual void request(int gateIndex) override;
 
 };
 
