@@ -23,12 +23,10 @@ simple Server
 
         string fetchingAlgorithm @enum("priority","random","roundRobin","longestQueue") = "priority";
              // how the next job will be choosen from the attached queues
-        volatile double service_time @unit(s); // service time of job
-        volatile double deadline @unit(s); // deadline time of a job
-        
         
     gates:
         input in[];
-        output out;
+        output out1[];
+		output out;
 }
 

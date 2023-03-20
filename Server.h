@@ -28,20 +28,17 @@ class QUEUEING_API Server : public cSimpleModule, public IServer
     private:
 
         simsignal_t busySignal;
+
         bool allocated;
         SelectionStrategy *selectionStrategy;
         Job *jobServiced;
         cMessage *endServiceMsg;
         cMessage *noJobsLeft;
-        cGate *gate;
-        cGate *gateIN;
+        cGate *visitQueueGate;
+        cGate *queueGate;
         simtime_t service_time;
         simtime_t deadline;
 
-    //        cMessage *endProducingMsgU1;
-    //        cMessage *endProducingMsgU2;
-
-        //virtual void startProducing();
 
     public:
         Server();
