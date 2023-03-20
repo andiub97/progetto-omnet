@@ -1,4 +1,4 @@
-//
+    //
 // This file is part of an OMNeT++/OMNEST simulation example.
 //
 // Copyright (C) 2006-2015 OpenSim Ltd.
@@ -48,6 +48,9 @@ void Source::initialize()
     stopTime = par("stopTime");
     numJobs = par("numJobs");
 
+    service_time = par("service_time");
+    deadline = par("deadline");
+
     // schedule the first message timer for start time
     scheduleAt(startTime, new cMessage("newJobTimer"));
 }
@@ -61,34 +64,14 @@ void Source::handleMessage(cMessage *msg)
         scheduleAt(simTime() + par("interArrivalTime").doubleValue(), msg);
 
         Job *job = createJob();
+        job->setTotalServiceTime(service_time);
+        job->setDeadlineTime(simTime() + deadline);
+
         send(job, "out");
     }
     else {
         // finished
         delete msg;
-    }
-}
-
-//----
-
-Define_Module(SourceOnce);
-
-void SourceOnce::initialize()
-{
-    SourceBase::initialize();
-    simtime_t time = par("time");
-    scheduleAt(time, new cMessage("newJobTimer"));
-}
-
-void SourceOnce::handleMessage(cMessage *msg)
-{
-    ASSERT(msg->isSelfMessage());
-    delete msg;
-
-    int n = par("numJobs");
-    for (int i = 0; i < n; i++) {
-        Job *job = createJob();
-        send(job, "out");
     }
 }
 

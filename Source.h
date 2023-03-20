@@ -40,19 +40,12 @@ class QUEUEING_API Source : public SourceBase
     private:
         simtime_t startTime;
         simtime_t stopTime;
+
+        simtime_t service_time;
+        simtime_t deadline;
+
         int numJobs;
 
-    protected:
-        virtual void initialize() override;
-        virtual void handleMessage(cMessage *msg) override;
-};
-
-
-/**
- * Generates jobs; see NED file for more info.
- */
-class QUEUEING_API SourceOnce : public SourceBase
-{
     protected:
         virtual void initialize() override;
         virtual void handleMessage(cMessage *msg) override;

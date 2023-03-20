@@ -29,6 +29,9 @@ simple Source
         volatile int jobPriority = 0;   // priority of the job
         double startTime @unit(s) = interArrivalTime; // when the module sends out the first job
         double stopTime @unit(s) = -1s; // when the module stops the job generation (-1 means no limit)
+        
+        volatile double service_time @unit(s); // service time of job
+        volatile double deadline @unit(s); // deadline time of a job
     gates:
         output out;
 }
