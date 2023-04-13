@@ -29,12 +29,8 @@ PassiveQueue::~PassiveQueue()
 void PassiveQueue::initialize()
 {
 
-//    queueLengthSignal = registerSignal("queueLength");
-//    emit(queueLengthSignal, 0);
-
-
     expiredSignal = registerSignal("expired");
-
+    waitingTimeSignal = registerSignal("waiting_time");
     expiredJobs = 0;
     WATCH(expiredJobs);
 
@@ -66,7 +62,10 @@ void PassiveQueue::handleMessage(cMessage *msg)
         else if(length() == 0){
 
             simtime_t totalQueueingTime = simTime() - job->getTimestamp();
+
             job->setTotalQueueingTime(totalQueueingTime);
+            emit(waitingTimeSignal,job->getTotalQueueingTime());
+
             // send through without queueing
             sendJob(job, k);
         }else
@@ -107,7 +106,8 @@ void PassiveQueue::request(int gateIndex)
             queue.remove(job);
             jobsCounter -= 1;
             expiredJobs++;
-            emit(expiredSignal,1);
+            std::cout << "jobs expired: " << expiredJobs << std::endl;
+            emit(expiredSignal, 1);
 
         }else{
 
@@ -117,6 +117,8 @@ void PassiveQueue::request(int gateIndex)
 
             simtime_t totalQueueingTime = simTime() - job->getTimestamp();
             job->setTotalQueueingTime(totalQueueingTime);
+            emit(waitingTimeSignal,job->getTotalQueueingTime());
+
             sendJob(job, gateIndex);
         }
     }
@@ -135,7 +137,6 @@ void PassiveQueue::sendJob(Job *job, int gateIndex)
 }
 
 void PassiveQueue::finish() {
-//    emit(expiredSignal,expiredJobs);
 }
 
 

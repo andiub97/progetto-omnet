@@ -21,7 +21,9 @@ simple PassiveQueue
     parameters:
         @group(Queueing);
         @signal[expired](type="long");
-        @statistic[expired](title="expired job event";record=vector?,sum;interpolationmode=none);
+        @statistic[expired](title="expired job event";record=vector,count;interpolationmode=none);
+        @signal[waiting_time](type="simtime_t");
+        @statistic[waiting_time](title="waiting time of job waiting for service";record=vector?,histogram;interpolationmode=none);
         @display("i=block/passiveq;q=queue");
 
         int capacity = -1;  // negative capacity means unlimited queue

@@ -26,6 +26,8 @@ class QUEUEING_API PassiveQueue : public cSimpleModule, public IPassiveQueue
 {
     private:
         simsignal_t expiredSignal;
+        simsignal_t waitingTimeSignal;
+
         int expiredJobs;
 
         bool fifo;
