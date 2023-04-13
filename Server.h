@@ -28,6 +28,7 @@ class QUEUEING_API Server : public cSimpleModule, public IServer
     private:
 
         simsignal_t busySignal;
+        simsignal_t responseTimeSignal;
 
         bool allocated;
         SelectionStrategy *selectionStrategy;
@@ -35,9 +36,7 @@ class QUEUEING_API Server : public cSimpleModule, public IServer
         cMessage *endServiceMsg;
         cMessage *noJobsLeft;
         cGate *visitQueueGate;
-        cGate *queueGate;
-        simtime_t service_time;
-        simtime_t deadline;
+        int served_jobs;
 
 
     public:

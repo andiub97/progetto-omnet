@@ -20,6 +20,8 @@ simple Server
         @display("i=block/server");
         @signal[busy](type="bool");
         @statistic[busy](title="server busy state";record=vector?,timeavg;interpolationmode=sample-hold);
+		@signal[response_time](type="simtime_t");
+        @statistic[response_time](title="response time of the system for the job";record=vector?,histogram;interpolationmode=none);
 
         string fetchingAlgorithm @enum("priority","random","roundRobin","longestQueue") = "priority";
              // how the next job will be choosen from the attached queues

@@ -38,12 +38,14 @@ void Server::initialize()
     busySignal = registerSignal("busy");
     emit(busySignal, false);
 
+    responseTimeSignal = registerSignal("response_time");
+
     endServiceMsg = new cMessage("end-service");
     noJobsLeft = new cMessage("noJobsLeft");
 
-    queueGate= nullptr;
     visitQueueGate=nullptr;
 
+    served_jobs = 0;
     jobServiced = nullptr;
     allocated = false;
     selectionStrategy = SelectionStrategy::create(par("fetchingAlgorithm"), this, true);
@@ -64,6 +66,10 @@ void Server::handleMessage(cMessage *msg)
 
         }else{
             EV << "Finishing service of " << jobServiced->getName() << endl;
+            std::cout << "jobs served: " << served_jobs++ << std::endl;
+            emit(responseTimeSignal,jobServiced->getTotalQueueingTime() + jobServiced->getTotalServiceTime());
+
+            std::cout << "response time: " << jobServiced->getTotalQueueingTime() + jobServiced->getTotalServiceTime() << std::endl;
             send(jobServiced, "out");
 
         }
@@ -77,24 +83,21 @@ void Server::handleMessage(cMessage *msg)
             {
                 EV << "requesting job from queue " << k << endl;
 
-                queueGate = selectionStrategy->selectableGate(k);
-                EV << "requesting job from queue " << queueGate->getBaseId() << endl;
-                visitQueueGate = queueGate;
+                visitQueueGate = selectionStrategy->selectableGate(k);
+                EV << "requesting job from queue " << visitQueueGate->getBaseId() << endl;
                 check_and_cast<IPassiveQueue *>(visitQueueGate->getOwnerModule())->request(visitQueueGate->getIndex());
                 scheduleAt(simTime(), endServiceMsg);
-                service_time = SimTime::ZERO;
-            }else{
+            }
+            else{
                 cancelEvent(endServiceMsg);
                 emit(busySignal, false);
                 allocated = false;
 
-                service_time = SimTime::ZERO;
             }
         }else{
 
             check_and_cast<IPassiveQueue *>(visitQueueGate->getOwnerModule())->request(visitQueueGate->getIndex());
             scheduleAt(simTime(), endServiceMsg);
-            service_time = SimTime::ZERO;
         }
 
     }
@@ -102,15 +105,7 @@ void Server::handleMessage(cMessage *msg)
 
         EV << "print";
         visitQueueGate = nullptr;
-        cancelEvent(endServiceMsg);
 
-        if(jobServiced == nullptr){
-            scheduleAt(simTime(), endServiceMsg);
-        }else{
-            scheduleAt(simTime()+service_time,endServiceMsg);
-        }
-
-        service_time = SimTime::ZERO;
     }
 
     else {
@@ -124,19 +119,12 @@ void Server::handleMessage(cMessage *msg)
             throw cRuntimeError("a new job arrived while already servicing one");
 
         jobServiced = check_and_cast<Job*>(msg);
-        service_time = jobServiced->getTotalServiceTime();
+        simtime_t service_time = jobServiced->getTotalServiceTime();
         //setting entryTime in the system for statistics
         jobServiced->setEntryTime(simTime());
         EV << "Starting service of " << jobServiced->getName() << endl;
 
-        int k = selectionStrategy->select();
-        if (k < 0){
-
-            scheduleAt(simTime()+service_time, endServiceMsg);
-        }else{
-
-            scheduleAt(simTime()+service_time, endServiceMsg);
-        }
+        scheduleAt(simTime()+service_time, endServiceMsg);
         emit(busySignal, true);
     }
 }
