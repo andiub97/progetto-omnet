@@ -26,6 +26,7 @@ void Sink::handleMessage(cMessage *msg)
     // gather statistics
     emit(lifeTimeSignal, simTime() - job->getCreationTime());
 
+
     if (!keepJobs)
         delete msg;
 }
