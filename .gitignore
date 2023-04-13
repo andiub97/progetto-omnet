@@ -232,6 +232,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+./.qtenvrc
+./progetto-omnet
 
 # Spyder project settings
 .spyderproject
