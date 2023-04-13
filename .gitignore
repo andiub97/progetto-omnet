@@ -47,6 +47,8 @@ local.properties
 *.vci
 *.sca
 *.vec
+*.json
+*.png
 # External tool builders
 .externalToolBuilders/
 
