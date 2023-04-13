@@ -65,6 +65,7 @@ void Source::handleMessage(cMessage *msg)
 
         Job *job = createJob();
         job->setTotalServiceTime(service_time);
+        std::cout << "service time: " << service_time << std::endl;
         job->setDeadlineTime(simTime() + deadline);
 
         send(job, "out");
