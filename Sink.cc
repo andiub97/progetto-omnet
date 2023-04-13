@@ -33,7 +33,6 @@ void Sink::handleMessage(cMessage *msg)
 
 void Sink::finish()
 {
-    // TODO missing scalar statistics
 }
 
 }; //namespace
