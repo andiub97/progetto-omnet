@@ -96,15 +96,6 @@ class QUEUEING_API Job: public Job_Base
         virtual simtime_t getEntryTime(){return entryTime;}
 
 
-//        virtual void setDeadline(simtime_t number);
-//
-//        virtual simtime_t getDeadline(){return deadline;}
-//
-//        void setServiceTime(simtime_t number);
-//
-//        virtual simtime_t getServiceTime(){return service_time;}
-
-
 };
 
 }; // namespace
