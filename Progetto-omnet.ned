@@ -21,8 +21,6 @@ network Progetto
     submodules:
         source: Source {
             @display("p=36,152");
-            //jobType = 1;
-            //jobPriority = 1;
         }
         sink: Sink {
             @display("p=488,152");
