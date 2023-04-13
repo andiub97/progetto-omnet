@@ -148,7 +148,7 @@ def create_csv_response_time(DATA_HISTOGRAM_DIR, log_level):
         data=[]
         for jsons in (os.listdir(config_dir)):
             if 'ResponseTimeTotal.json' in jsons:
-                print("\t" + config_dir + "/" + jsons)
+                logging.debug("\t" + config_dir + "/" + jsons)
                 with open(config_dir + "/" + jsons) as file:
                     pointed_file = json.load(file)
                     for k in pointed_file.keys():
@@ -194,7 +194,6 @@ def create_response_time_stats(DATA, log_level):
                 logging.debug("\t\tMin t90 ConfInt: " + str(min_90) + ' - Max t90 ConfInt: ' + str(max_90))
                 data.append([config, 'responseTime', N, round(mean, 3), round(std_dev, 3), round(var, 3), round(std_err, 3),
                             round(min_95, 3), round(max_95, 3), round(min_90, 3), round(max_90, 3)])
-                print("----------------------------------------------------------")
     df_data = pd.DataFrame(data)
     df_data.columns = ['Config', 'Name', 'N', 'Mean', 'Std Dev', 'Var', 'Std Err', 'Min ConfInt t95', 'Max ConfInt t95',
                        'Min ConfInt t90', 'Max ConfInt t90']
@@ -235,14 +234,14 @@ def create_plot_conf(df, DATA, log_level):
     logging.basicConfig(format='%(message)s', level=log_level)
     life_time = df[df['Name'].isin({'lifeTime'})]
     
-    print(life_time)
+    logging.debug(life_time)
     # Plot Parameters
     N = 3
     width = 0.25
     configuration = ['First', 'Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth']
 
     for c in configuration:
-        print(c)
+        logging.debug(c)
         sub_df = df.loc[df['Config'].str.startswith(c).copy()]
         sub_df=sub_df.sort_values('N')
 
@@ -278,12 +277,11 @@ def create_plot_conf(df, DATA, log_level):
 
 
 def create_plot_lifetime(df, DATA, log_level):
-    print("---------------------------------------------------------------------------")
     logging.basicConfig(format='%(message)s', level=log_level)
 
     # DataFrame per Name type
     life_time = df[df['Name'].isin({'lifeTime:mean', 'lifeTime:max', 'lifeTime:min'})]
-    logging.info(life_time)
+    logging.debug(life_time)
     
     # Plot Parameters
     N = [1, 2, 4]
@@ -353,7 +351,6 @@ def create_plot_expired_jobs(df, DATA, log_level):
             ax.set_xticklabels(('1', '2', '3','4'))
             ax.legend((low_bound_95[0], high_bound_95[0]), ('Low Bound 95', 'High Bound 95'))
             ax.autoscale_view()
-            print("---------------")
             plt.savefig(DATA + '/ExpiredJobs/ConfInt_95/' + config + "-n" + str(N_val) + "_expired" + '_95')
 
 
@@ -368,7 +365,6 @@ def create_plot_expired_jobs(df, DATA, log_level):
             ax.set_xticklabels(('1', '2', '3','4'))
             ax.legend((low_bound_90[0], high_bound_90[0]), ('Low Bound 90', 'High Bound 90'))
             ax.autoscale_view()
-            print("---------------")
             plt.savefig(DATA + '/ExpiredJobs/ConfInt_90/' + config + "-n" + str(N_val) + "_expired" + '_90')
 
         fig, ax = plt.subplots()
@@ -397,7 +393,7 @@ def create_plot_median_response_time(DATA, log_level):
     df = pd.read_csv('../scalar-results/Total_Median_Response_Time.csv')
 
     for c in configuration:
-        print(c)
+        logging.debug(c)
         sub_df = df.loc[df['Config'].str.startswith(c).copy()]        
         sub_df=sub_df.sort_values('N')
 
@@ -413,7 +409,6 @@ def create_plot_median_response_time(DATA, log_level):
         ax.set_xticklabels(('1', '2', '4'))
         ax.legend((low_bound_95[0], mean[0], high_bound_95[0]), ('Low Bound 95', 'Mean', 'High Bound 95'))
         ax.autoscale_view()
-        print("---------------")
         plt.savefig(DATA + '/ResponseTime/ConfInt_95/' + c + "_responsetime" + '_95')
         plt.show()
 
