@@ -59,7 +59,8 @@ void PassiveQueue::handleMessage(cMessage *msg)
             // enqueue if no idle server found
             queue.insert(job);
         }
-        else if(length() == 0){
+        else if(length() == 0)
+            if (simTime() >= job.getDeadline() ){
 
             simtime_t totalQueueingTime = simTime() - job->getTimestamp();
 
@@ -68,6 +69,11 @@ void PassiveQueue::handleMessage(cMessage *msg)
 
             // send through without queueing
             sendJob(job, k);
+            else{
+                expiredJobs++;
+                std::cout << "jobs expired: " << expiredJobs << std::endl;
+                emit(expiredSignal, 1);
+            }
         }else
             throw cRuntimeError("This should not happen. Queue is NOT empty and there is an IDLE server attached to us.");
 
@@ -107,7 +113,9 @@ void PassiveQueue::request(int gateIndex)
             jobsCounter -= 1;
             expiredJobs++;
             std::cout << "jobs expired: " << expiredJobs << std::endl;
-            emit(expiredSignal, 1);
+                        emit(expiredSignal, 1);
+115
+emit(expiredSignal, 1);
 
         }else{
 
